@@ -1,0 +1,12 @@
+pandoc: 2.7.3
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  docs/centrality: centrality.html
+  docs/data: data.html
+  docs/objects: objects.html
+last_built: 2021-07-15T17:13Z
+urls:
+  reference: https://github.com/montilab/bieulergy/reference
+  article: https://github.com/montilab/bieulergy/articles
+
