@@ -1,7 +1,6 @@
 pkgdown
 vignettes/info
 dev/
-docs/
 inst/script/data/*
 data-raw/
 *.psd
