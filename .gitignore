@@ -1,3 +1,22 @@
+pkgdown
+vignettes/info
+dev/
+inst/shiny/
+inst/shiny/data/
+data-raw/
+/docs/
+*.psd
+*.ai
+*.svg
+
+# App keys
+*.Rproj
+.Renviron
+
+# Packrat lockfiles generated during RSC deploy
+packrat.lock
+rsconnect/
+
 # History files
 .Rhistory
 .Rapp.history
@@ -20,10 +39,6 @@
 # RStudio files
 .Rproj.user/
 
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
-
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
 
@@ -35,5 +50,32 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
-# R Environment Variables
-.Renviron
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+.Rproj.user
+*.yml
+inst/script/data/yeast-tfs.csv

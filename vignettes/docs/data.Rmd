@@ -1,0 +1,201 @@
+---
+title: "Importing Data"
+vignette: >
+    %\VignetteIndexEntry{Importing Data}
+    %\VignetteEncoding{UTF-8}
+    %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(comment="", cache=FALSE, fig.align="center", message=FALSE, warning=FALSE)
+options(width=600)
+devtools::load_all(".")
+
+library(ndexr)
+library(igraph)
+library(omics.network)
+
+ex.adj <- function(...) {
+    ig <- igraph::sample_pa(5)
+    adj <- as.matrix(igraph::as_adjacency_matrix(ig))
+    colnames(adj) <- rownames(adj) <- c("10413", "25937", "9113", "26524", "983")
+    return(adj)
+}
+
+ex.wadj <- function(...) {
+    ig <- igraph::sample_pa(5)
+    adj <- as.matrix(igraph::as_adjacency_matrix(ig))
+    wadj <- adj
+    wadj[adj != 0] <- signif(runif(sum(adj), -1, 1), 1)
+    colnames(wadj) <- rownames(wadj) <- c("10413", "25937", "9113", "26524", "983")
+    return(wadj)
+}
+```
+
+# Creating Interactive Omics Network Objects
+
+Loading data is relatively straightforward. This package is primarily designed for undirected and simple networks. Simple graphs do not have multiple edges (different modes of regulation) and do not contain loops (self-regulation). If you are building network objects from unweighted or weighted adjacency matrices, the graph objects will be looking at the lower portion of the matrix (although symmetric matrices are fine).
+
+## Adjacency Matrix
+
+```{r}
+set.seed(1)
+adj <- ex.adj()
+print(adj)
+```
+We could use this as is but vertices need to be unique, this causes a problem when there is multi-mapping of probes to genes, proteins, etc. Therefore when building a network object, you can pass a mapping of vertex identifiers to gene symbols. This allows downstream methods to switch between vertex ids and human-readable symbols. If no symbols are provided, the vertex ids will be used by default.
+
+```{r}
+symbols <- LETTERS[1:5]
+names(symbols) <- colnames(adj)
+head(symbols)
+
+ionet <- create.ionet(adj, type="adj", symbols=symbols)
+```
+
+```{r}
+ionet$plt.subnetwork("10413", degree=2, use.symbols=TRUE)
+```
+## Weighted Adjaceny Matrix
+
+```{r, results='hide'}
+set.seed(1)
+wadj <- ex.wadj()
+print(wadj)
+
+ionet <- create.ionet(wadj, type="wadj", symbols=symbols)
+```
+
+## Graph Objects
+
+The easiest method is to start with a properly formatted igraph object.
+
+```{r}
+data(ig)
+
+ig
+```
+
+See here the nodes are entrez ids. Also, please make sure your ids are characters when working with igraph...
+
+```{r}
+ids <- as_ids(V(ig))
+head(ids)
+```
+
+Here we can use this helper function to make a mapping to hugo symbols...
+
+```{r}
+library(biomaRt)
+ensembl <- biomaRt::useMart("ensembl", dataset="hsapiens_gene_ensembl")
+convert.ids <- function(ids, type=NULL) {
+    conversion <- biomaRt::getBM(attributes=c(type, "hgnc_symbol"), filters=type, values=ids, mart=ensembl)
+    symbols <- conversion$hgnc_symbol[match(ids, conversion[,type])]
+    names(symbols) <- ids
+    return(symbols)
+}
+```
+
+```{r}
+symbols <- convert.ids(ids, type="entrezgene_id")
+```
+
+```{r}
+symbols
+```
+
+```{r, results='hide'}
+ionet <- create.ionet(ig, type="ig", symbols=symbols)
+```
+
+### Object Structure
+
+```{r}
+str(ionet)
+```
+
+```{r}
+head(ionet$nodes)
+```
+
+## Lots of Networks
+
+A main focus of this package is to compare networks. A lot of functions simply take a list of network objects as a primary argument. The only strong suggestion here is that the dimensions of your networks should be the same. This is typically not a problem when your networks are reconstructions between different phenotypes, but can be problematic (and impossible) when comparing networks from completely different sources.
+
+This also means you should be using the same vector of symbols when generating each of the objects This isn't required for command line usage, but it is for the shiny application, and it'll save you a lot of headaches down the line. With that being said, if it makes sense for you networks to have the same set of vertices, please try to do so.
+
+In the future we plan to implement methods for comparing networks with different vertex sets.
+
+```{r, results='hide'}
+igs <- list("N1"=ig, "N2"=ig, "N3"=ig)
+
+ionets <- lapply(igs, function(x) {
+    create.ionet(x, type="ig")
+})
+
+# or
+ionets <- create.ionets(igs, type="ig")
+```
+
+```{r}
+print(ionets)
+```
+
+## Omics Network Objects
+
+Interactive omics networks are an extension of the omics network object written specifically for the *Bieulergy* R package and Shiny application. It's designed for interactive analysis of multiple networks with accessory omics data. If you are working with omics network objects, the constructor function will help you make it compatible with *Bieulergy*.
+
+```{r, eval=FALSE}
+devtools::install_github("montilab/omics-network")
+```
+
+```{r, eval=FALSE}
+library(omics.network)
+```
+
+```{r}
+data(omics)
+onet <- omics.network$new(omics)
+onet$peek()
+```
+
+```{r}
+head(onet$nodes.attributes())
+```
+
+```{r}
+symbols <- onet$nodes("label")
+names(symbols) <- onet$nodes("name")
+ionet <- create.ionet(onet, type="onet", symbols=symbols)
+```
+
+## Network Data Exchange
+
+The Network Data Exchange (NDEx) Project is an open-source framework for storing, sharing, and manipulating published biological networks. Here we provide a useful wrapper function for pulling NDEx objects and formatting them into Interactive Omics Network objects for use in *Bieulergy*.
+
+```{r, eval=FALSE}
+library(ndexr)
+library(igraph)
+```
+
+```{r}
+ndex <- function(uuid) {
+    ndexcon <- ndex_connect()
+    data <- ndex_get_network(ndexcon, uuid)
+    mat <- as.matrix(data$edges)
+    storage.mode(mat) <- "character"
+    ig <- igraph::graph_from_edgelist(mat[,c("s", "t")], directed=FALSE)
+    ids <- data$nodes[match(as.numeric(igraph::as_ids(V(ig))), data$nodes[,"@id"]), "n"]
+    V(ig)$label <- ids
+    return(ig)
+}
+```
+
+```{r}
+# Global landscape of HIV–human protein complexes.
+# Jaeger et al. Nature. 2011 Dec 21; 481(7381): 365–370
+# @UUID: 1cbe89ab-fb5d-11e9-bb65-0ac135e8bacf
+
+ig <- ndex("1cbe89ab-fb5d-11e9-bb65-0ac135e8bacf")
+ionet <- create.ionet(ig, type="ig")
+```

@@ -1,0 +1,108 @@
+---
+title: "Interactive Network Objects"
+vignette: >
+    %\VignetteIndexEntry{Interactive Network Objects}
+    %\VignetteEncoding{UTF-8}
+    %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(comment="", cache=FALSE, fig.align="center", message=FALSE, warning=FALSE)
+devtools::load_all(".")
+```
+
+Working with interactive network objects makes it easy to perform interactive analyses in Shiny and continue in the command line for extending analysis where you left off.
+
+```{r}
+yeast.networks <- readRDS(file.path(system.file("extdata", package="bieulergy"), "yeast-networks.rds"))
+```
+
+# Using Interactive Omics Network Objects 
+
+Network objects are essentially undirected igraph objects with pre-computed graph and node level properties. Additionally, they allow a mapping of unique node identifiers to human-readable symbols. These symbols are typically gene or protein symbols. This allows for integrating enrichment-based analysis or incorporating node-level information into network analyses.
+
+```{r}
+network <- yeast.networks[[1]]
+
+print(network)
+```
+
+## Object Structure
+
+```{r}
+str(network)
+```
+
+```{r}
+head(network$nodes)
+head(network$edges)
+```
+
+### Converting unique nodes identifiers to mapped symbols
+
+```{r}
+network$get.symbols(c("749", "109", "740"))
+```
+
+### Find interactors or filter sub networks
+
+```{r}
+network$get.interactors(c("109"))
+network$get.interactors(c("109", "107"))
+```
+
+```{r}
+network$plt.subnetwork(ids=c("109", "107"))
+network$plt.subnetwork(ids=c("109", "107"), indirect.edges=TRUE)
+```
+
+```{r}
+network$plt.subnetwork(ids=c("109", "107"), degree=3)
+```
+
+```{r}
+network$plt.subnetwork(ids=c("109", "107"), degree=3, use.symbols=TRUE)
+```
+
+```{r}
+network$plt.subnetwork(ids=c("109", "107"), degree=3, use.symbols=TRUE, node.color="degree")
+```
+
+```{r}
+network$plt.subnetwork(ids=c("109", "107"), degree=5, use.symbols=TRUE, node.color="degree", layout="layout_on_grid")
+```
+
+```{r}
+network$plt.subnetwork(ids=c("109", "107", "607"), degree=0)
+```
+
+### Omics Accessory Data
+
+What if we have lots of multi-omics data we'd like to incorporate into the node/edge properties?
+
+```{r}
+network$plt.subnetwork(ids=c("285"),
+                       degree=2,
+                       use.symbols=TRUE,
+                       node.size="eigen",
+                       node.color=list("lfc_mrna", cfx(c("blue", "white", "red"))),
+                       node.border=list("snp_frq", cfx(c("#e9e9e9", "black"))),
+                       node.shape="is_tf")
+```
+
+### Sub Network Enrichment
+
+What if we wanted to test enrichment of biological pathways within a sub network?
+
+```{r}
+library(hypeR)
+genesets <- enrichr_download(genesets="KEGG_2019", db="YeastEnrichr")
+
+signature <- network$get.interactors(ids=c("285"), degree=2, remove.ids=FALSE, use.symbols=TRUE)
+head(signature)
+
+hyp <- hypeR(signature, genesets, background=16454)
+hyp_dots(hyp)
+
+head(hyp$data[,2:6])
+```

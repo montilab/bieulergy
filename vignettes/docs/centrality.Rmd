@@ -1,0 +1,188 @@
+---
+title: "Centrality Measures"
+vignette: >
+    %\VignetteIndexEntry{Centrality Measures}
+    %\VignetteEncoding{UTF-8}
+    %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(comment="", cache=FALSE, fig.align="center", message=FALSE, warning=FALSE)
+options(width=600)
+devtools::load_all(".")
+
+library(htmltools)
+library(reactable)
+library(igraph)
+library(viridis)
+library(ggplot2)
+library(ggpubr)
+```
+
+# Information
+
+A major theme in graph-theoretic approaches is comparing nodes by different centrality measures. There are hundreds of centrality measures, some of which measure similar properties. Here are some selected measures we use that have biological relevance. By default interactive network objects will compute degree, eigen, betweenness, and stress centrality. Below are all available centrality measures in the package.
+
+```{r, include=FALSE}
+infile <- readLines("../info/centrality.csv")
+infile <- infile[!startsWith(infile, "@")]
+
+groups <- seq_len(length(infile)) %% 4
+df <- data.frame(name = infile[groups==2],
+                 fn   = infile[groups==1],
+                 desc = infile[groups==3],
+                 brlv = infile[groups==0])
+```
+
+```{r, include=FALSE}
+data(centrality)
+ig <- centrality
+
+row.example <- function(fn) {
+    fx <- ig.centrality()[[fn]]
+    centrality <- fx(ig)
+    V(ig)$centrality <- centrality
+    V(ig)$color <- colorize(V(ig)$centrality)
+    V(ig)$label <- signif(centrality, 2)
+    V(ig)$label.family <- "Helvetica"
+    V(ig)$label.cex <- 0.7
+    V(ig)$label.font <- 2
+    data <- toVisNetworkData(ig, idToLabel=F)
+    visNetwork(data$nodes, data$edges, width="100%") %>%
+    visEdges(color="grey") %>%
+    visIgraphLayout("layout_with_dh", randomSeed=4)
+}
+
+row.details <- function(index) {
+    row <- df[index,]
+
+    add.field <- function(name, ...) {
+        if (any(is.na(...))) NULL
+        else tagList(div(class = "rctbl-detail-label", name), ...)
+    }
+   
+    div(
+        class = "rctbl-detail",
+        div(class = "rctbl-detail-header", row$name, span(class = "rctbl-detail-title", row$fn)),
+        add.field("Description", row$desc),
+        add.field("Biological Relevance", row$brlv),
+        add.field("Example", row.example(row$fn))
+    )
+}
+
+tbl <- reactable(
+        df[,c(1:3)],
+        showPageSizeOptions = FALSE,
+        onClick = "expand",
+        resizable = TRUE,
+        rownames = FALSE,
+        defaultColDef = colDef(headerClass="rctbl-header"),
+        columns = list(name = colDef(name="Name"),
+                       fn = colDef(name="Function"),
+                       desc = colDef(name="Description")),
+        details = row.details,
+        wrap = FALSE,
+        class = "rctbl-table",
+        rowStyle = list(cursor="pointer"))
+```
+
+```{r, echo=FALSE}
+div(class="rctbl-obj", tbl)
+```
+
+<sup>Source: https://www.centiserver.org</sup>
+
+Jalili M, Salehzadeh-Yazdi A, Asgari Y, Arab SS, Yaghmaie M, Ghavamzadeh A, Alimoghaddam K. (2015) CentiServer: A Comprehensive Resource, Web-Based Application and R Package for Centrality Analysis. PLoS ONE 10(11): e0143111. [DOI: 10.1371/journal.pone.0143111](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0143111)
+
+# Application of Centality Measures
+
+```{r}
+yeast.networks <- readRDS(file.path(system.file("extdata", package="bieulergy"), "yeast-networks.rds"))
+```
+
+```{r}
+names(yeast.networks)
+
+# Working with single network
+network <- yeast.networks$Yeast_1
+
+# Working with multiple network
+networks <- yeast.networks
+```
+
+## Important Measures
+
+One of the first things you might do for a network is check to see which centrality measures are responsible for the variance among nodes.
+
+```{r}
+network.pca.pltvar(network)
+network.pca.contri(network)
+network.pca.varexp(network)
+network.pca.hclust(network)
+```
+
+## Centrality Distribution
+
+```{r}
+networks.cdistr(networks, metric="degree")
+networks.cdistr(networks, metric="eigen", plot="density")
+networks.cdistr(networks, metric="eigen", plot="ecdf")
+```
+
+## Hierarchical Clustering
+
+```{r}
+networks.hclust(networks, metric="eigen", method="pearson")
+```
+
+## Important Nodes
+
+```{r}
+networks.tnodes(networks, metric="degree", top=10, symbols=TRUE, log=FALSE)
+```
+
+## Centrality-based Enrichment
+
+```{r}
+library(hypeR)
+genesets <- enrichr_download(genesets="KEGG_2019", db="YeastEnrichr")
+geneset <- genesets$`MAPK signaling pathway`
+head(geneset)
+
+yeast.1 <- yeast.networks$Yeast_1
+
+network.kstest(yeast.1, metric="eigen", geneset=geneset)
+```
+
+```{r, fig.height=8}
+p <- lapply(yeast.networks, function(x) network.kstest(x, metric="eigen", geneset=geneset))
+p <- mapply(function(px, label) {
+   px+ggplot2::labs(subtitle=label)
+}, p, names(yeast.networks), SIMPLIFY=FALSE)
+ggpubr::ggarrange(plotlist=p, ncol=1, nrow=3)
+```
+
+## Comparing Centrality Ranks
+
+```{r}
+ggwrs(100, p=5)
+```
+
+```{r, fig.height=8}
+networks.diffc(yeast.networks, metric="eigen", top=25, p=5)
+```
+
+```{r}
+yeast.3 <- yeast.networks$Yeast_3
+yeast.3$get.symbols("109")
+```
+
+```{r}
+yeast.3$plt.subnetwork(ids=c("109"),
+                       degree=3,
+                       use.symbols=TRUE,
+                       node.size="eigen",
+                       node.color=list("lfc_mrna", cfx(c("blue", "white", "red"))),
+                       node.border=list("snp_frq", cfx(c("#e9e9e9", "black"))),
+                       node.shape="is_tf")
+```
