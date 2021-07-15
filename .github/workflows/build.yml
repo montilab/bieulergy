@@ -23,7 +23,6 @@ jobs:
       - name: Install bieulergy
         run: |
           install.packages('devtools')
-          devtools::install_github("montilab/hypeR")
           devtools::install('.', dependencies=TRUE)
         shell: Rscript {0}
 
