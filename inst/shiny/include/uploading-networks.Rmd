@@ -1,0 +1,44 @@
+---
+output: html_fragment
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+devtools::load_all()
+options(width=600)
+```
+
+### Uploading Custom Networks
+
+*Bieulergy* optimizes performance by representing networks as node/edge-lists and pre-computing various graph statistics used throughout the application. User data can be uploaded in the form of a serialized R object file `.rds`. The object must be a *named list of one or more interactive network objects*. 
+
+Please refer to our [documentation](https://montilab.github.io/bieulergy/articles/docs/data.html) for creating `interactive network objects`.
+
+*Bieulergy* assumes the following:  
+
+- Networks are represented as *gene x gene* adjacency matrices with edges present in the upper triangle
+- Networks are **undirected**
+- Networks are the same dimensions and share the same row/column names
+
+### Example
+
+Here is an example of how the data should be formatted with 5 simulated networks of 100 genes.
+
+```{r}
+upload <- readRDS(file.path(system.file("extdata", package="bieulergy"), "yeast-networks.rds"))
+```
+
+A list of interactive omics objects...
+```{r}
+is(upload)
+```
+
+```{r}
+sapply(upload, is)
+```
+
+Some pre-computed graph measures...
+```{r}
+print(upload$`Yeast #1`$properties)
+head(upload$`Yeast #1`$nodes)
+```

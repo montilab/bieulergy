@@ -1,0 +1,23 @@
+---
+output: html_fragment
+---
+
+```{r global, echo=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+### Documentation
+
+*Please check out the [documentation](https://montilab.github.io/bieulergy) for more information about the tools and methods used thoughout the app.*
+
+### Resources
+
+**Source Code:** [github.com/montilab/bieulergy](github.com/montilab/bieulergy)
+
+**Documentation:** [montilab.github.io/bieulergy](montilab.github.io/bieulergy)
+
+**Operating Systems:** Linux, OS X
+
+**Programming Languages:** R
+
+**License:** GNU GPLv3 

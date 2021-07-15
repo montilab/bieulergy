@@ -1,10 +1,9 @@
 pkgdown
 vignettes/info
 dev/
-inst/shiny/
-inst/shiny/data/
+docs/
+inst/script/data/*
 data-raw/
-/docs/
 *.psd
 *.ai
 *.svg
@@ -78,4 +77,3 @@ Temporary Items
 .apdisk
 .Rproj.user
 *.yml
-inst/script/data/yeast-tfs.csv

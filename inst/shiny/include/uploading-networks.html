@@ -1,0 +1,31 @@
+
+
+
+<div id="uploading-custom-networks" class="section level3">
+<h3>Uploading Custom Networks</h3>
+<p><em>Bieulergy</em> optimizes performance by representing networks as node/edge-lists and pre-computing various graph statistics used throughout the application. User data can be uploaded in the form of a serialized R object file <code>.rds</code>. The object must be a <em>named list of one or more interactive network objects</em>.</p>
+<p>Please refer to our <a href="https://montilab.github.io/bieulergy/articles/docs/data.html">documentation</a> for creating <code>interactive network objects</code>.</p>
+<p><em>Bieulergy</em> assumes the following:</p>
+<ul>
+<li>Networks are represented as <em>gene x gene</em> adjacency matrices with edges present in the upper triangle</li>
+<li>Networks are <strong>undirected</strong></li>
+<li>Networks are the same dimensions and share the same row/column names</li>
+</ul>
+</div>
+<div id="example" class="section level3">
+<h3>Example</h3>
+<p>Here is an example of how the data should be formatted with 5 simulated networks of 100 genes.</p>
+<pre class="r"><code>upload &lt;- readRDS(file.path(system.file(&quot;extdata&quot;, package=&quot;bieulergy&quot;), &quot;yeast-networks.rds&quot;))</code></pre>
+<p>A list of interactive omics objects…</p>
+<pre class="r"><code>is(upload)</code></pre>
+<pre><code>## [1] &quot;list&quot;   &quot;vector&quot;</code></pre>
+<pre class="r"><code>sapply(upload, is)</code></pre>
+<pre><code>##                     Yeast_1                     Yeast_2                     Yeast_3 
+## &quot;interactive.omics.network&quot; &quot;interactive.omics.network&quot; &quot;interactive.omics.network&quot;</code></pre>
+<p>Some pre-computed graph measures…</p>
+<pre class="r"><code>print(upload$`Yeast #1`$properties)</code></pre>
+<pre><code>## NULL</code></pre>
+<pre class="r"><code>head(upload$`Yeast #1`$nodes)</code></pre>
+<pre><code>## NULL</code></pre>
+</div>
+

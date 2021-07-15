@@ -1,0 +1,65 @@
+/*
+Derived from the R package reactable written by Greg Lin
+License MIT + file LICENSE (https://cran.r-project.org/web/packages/reactable/LICENSE)
+https://github.com/glin/reactable
+https://glin.github.io/reactable
+*/
+.rctbl-obj {
+  font-family: Nunito, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+}
+.rctbl-obj-teeny {
+  font-family: Nunito, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+.rctbl-tbl {
+  border: 1px solid hsl(213, 33%, 93%);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+}
+.rctbl-header {
+  background-color: hsl(213, 45%, 97%);
+  border-bottom-color: hsl(213, 33%, 93%);
+  border-bottom-width: 1px;
+  color: hsl(213, 13%, 33%);
+}
+.rctbl-header[aria-sort]:hover {
+  color: hsl(213, 55%, 50%);
+}
+.rctbl-obj-nested {
+  padding: 24px;
+  box-shadow: inset 0 1px 3px #dbdbdb;
+  background: hsl(213, 20%, 99%);
+}
+.rctbl-tbl-nested {
+  border: 1px solid hsl(213, 33%, 93%);
+  border-radius: 4px;
+  box-shadow: 0 2px 7px 0 rgba(0, 0, 0, 0.05);
+  font-size: 12px;
+}
+.rctbl-nested-label {
+  margin: 20px 0 4px;  
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+.rctbl-nested-header {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+}
+.rctbl-nested-title {
+  margin-left: 18px;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.6);
+}
+.rctbl-circle {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  border-radius: 50%;
+  color: #000;
+  opacity: 0.75;
+  font-size: 13px;
+  letter-spacing: -2px;
+}
