@@ -27,11 +27,10 @@ A major theme in graph-theoretic approaches is comparing nodes by different cent
 infile <- readLines("../info/centrality.csv")
 infile <- infile[!startsWith(infile, "@")]
 
-groups <- seq_len(length(infile)) %% 4
+groups <- seq_len(length(infile)) %% 3
 df <- data.frame(name = infile[groups==2],
                  fn   = infile[groups==1],
-                 desc = infile[groups==3],
-                 brlv = infile[groups==0])
+                 desc = infile[groups==0])
 ```
 
 ```{r, include=FALSE}
@@ -65,7 +64,6 @@ row.details <- function(index) {
         class = "rctbl-detail",
         div(class = "rctbl-detail-header", row$name, span(class = "rctbl-detail-title", row$fn)),
         add.field("Description", row$desc),
-        add.field("Biological Relevance", row$brlv),
         add.field("Example", row.example(row$fn))
     )
 }
