@@ -9,6 +9,7 @@ Description: Graph-theoretic approaches for the analysis and visualization of mu
 Depends: R (>= 4.0.0)
 License: GPL-3 + file LICENSE
 URL: https://github.com/montilab/bieulergy
+biocViews:
 Imports: 
     config,
     shiny,
@@ -28,6 +29,7 @@ Imports:
     tibble,
     stringr,
     magrittr,
+    graph,
     dnet,
     glue,
     igraph,
