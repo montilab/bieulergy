@@ -9,6 +9,10 @@ Description: Graph-theoretic approaches for the analysis and visualization of mu
 Depends: R (>= 4.0.0)
 License: GPL-3 + file LICENSE
 URL: https://github.com/montilab/bieulergy
+biocViews:
+    graph
+    Rgraphviz
+    supraHex
 Imports: 
     config,
     shiny,
@@ -34,7 +38,10 @@ Imports:
     sna,
     visNetwork,
     FactoMineR,
-    factoextra
+    factoextra,
+    reactable,
+    dnet,
+    hypeR
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
@@ -44,11 +51,6 @@ Suggests:
     testthat,
     knitr,
     rmarkdown
-biocViews:
-    graph
-    Rgraphviz
-    supraHex
-    dnet
 Remotes:
     montilab/hypeR
 VignetteBuilder: knitr
