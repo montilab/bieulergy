@@ -166,7 +166,7 @@ interactive.omics.network <- R6Class("interactive.omics.network", list(
         if ("weight" %in% colnames(self$edges)) {
             self$edges$val <- self$edges$weight
             self$edges$weight <- 2
-            self$edges$color <- ifelse(self$edges$val > 0, "firebrick", "deepskyblue")
+            #self$edges$color <- ifelse(self$edges$val > 0, "firebrick", "deepskyblue")
         } else {
             self$edges$weight <- 2
             self$edges$color  <- "grey"

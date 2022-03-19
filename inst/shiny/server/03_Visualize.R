@@ -110,15 +110,20 @@ reactive_genesets <- genesets_Server("T3_genesets", clean=TRUE)
 
 enrichment <- eventReactive(input$T3_hyper, {
     if (length(input$T3_nodes) == 0) return()
-    if (!input$T3_rwr) return()
-
+    
     vn <- reactive_visualize()
-    signature <- vn$nodes$p 
-    names(signature) <- vn$nodes$symbol
-    signature.ranked <- names(signature[order(-signature)])
     genesets <- reactive_genesets()
-
-    hyp <- hypeR(signature.ranked, genesets, test="kstest", plotting=FALSE)
+  
+    if (input$T3_rwr) {
+      signature <- vn$nodes$p 
+      names(signature) <- vn$nodes$symbol
+      signature.ranked <- names(signature[order(-signature)])
+      hyp <- hypeR(signature.ranked, genesets, test="kstest", plotting=FALSE)
+    } else {
+      signature <- vn$nodes$symbol
+      background <- input$T3_background
+      hyp <- hypeR(signature, genesets, test="hypergeometric", background=background, plotting=FALSE)
+    }
 
     tab <- hyp$data %>%
            magrittr::set_colnames(toupper(colnames(.))) %>%
@@ -142,7 +147,6 @@ output$T3_enrichment <- renderReactable({
 
 observeEvent(input$T3_hyper, {
     if (length(input$T3_nodes) == 0) return()
-    if (!input$T3_rwr) return()
     updateTabsetPanel(session, "visualize_tabs", selected="Network Propagation")
 })
 
