@@ -41,8 +41,8 @@ observeEvent(input$T0_upload_file, {
             oracle$data     <- file.obj
             oracle$networks <- names(file.obj)
             oracle$network  <- names(file.obj)[[1]]
-            oracle$nodes    <- file.obj[[1]]$ids
-            oracle$node     <- file.obj[[1]]$ids[[1]]
+            oracle$nodes    <- file.obj[[1]]$nodes$id
+            oracle$node     <- file.obj[[1]]$nodes$id[[1]]
             update.inputs(session)
         },
         error = function(e) {
@@ -56,8 +56,8 @@ observeEvent(input$T0_change, {
     oracle$data     <- dat$data
     oracle$networks <- names(dat$data)
     oracle$network  <- names(dat$data)[[1]]
-    oracle$nodes    <- dat$data[[1]]$ids
-    oracle$node     <- dat$data[[1]]$ids[[1]]
+    oracle$nodes    <- dat$data[[1]]$nodes$id
+    oracle$node     <- dat$data[[1]]$nodes$id[[1]]
     update.inputs(session)
     updateTabsetPanel(session, "data_tabs", selected="View Loaded Dataset")
 })
