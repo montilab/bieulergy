@@ -1,0 +1,50 @@
+# Build according to a specified version of R
+ARG R_VERSION
+ARG R_VERSION=${R_VERSION:-4.1.0}
+
+############# Build Stage: base ##################
+
+# Get shiny+tidyverse+devtools packages from rocker image
+FROM rocker/shiny-verse:${R_VERSION} as base
+
+# Install system libraries of general use
+RUN apt-get update --allow-releaseinfo-change --fix-missing \
+  && apt-get install -y --no-install-recommends \
+  apt-utils \
+  libglpk-dev \
+  libcurl4-openssl-dev \
+  libxml2-dev \
+  libssl-dev \
+  libxtst6 \
+  libxt6 \
+  xdg-utils \
+  && apt clean autoclean \
+  && apt autoremove --yes \
+  && rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+# Create package directory 
+ENV PACKAGE_DIR=/bieulergy  
+
+# Make package as working directory
+WORKDIR ${PACKAGE_DIR}
+
+# Copy package code to Docker image
+COPY . ${PACKAGE_DIR}
+
+# Install all package dependencies
+RUN Rscript "${PACKAGE_DIR}/install_r_packages.R"
+
+# Install package
+RUN Rscript -e 'pkg_dir <- Sys.getenv("PACKAGE_DIR"); devtools::install(pkg_dir, dependencies=TRUE)'
+
+# Copy bash script that starts shiny-server 
+COPY inst/shiny/shiny-server.sh /user/bin/shiny-server.sh
+
+# Allow permissions to execute the bash script
+RUN chmod a+x /user/bin/shiny-server.sh
+
+# Make Shiny app available at port 3838
+EXPOSE 3838
+
+# Execute the bash script to launch shiny app 
+CMD ["/bin/bash", "-c", "/user/bin/shiny-server.sh"]

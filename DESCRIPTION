@@ -41,7 +41,8 @@ Imports:
     factoextra,
     reactable,
     dnet,
-    hypeR
+    hypeR,
+    markdown
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
